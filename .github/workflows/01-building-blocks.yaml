@@ -10,12 +10,13 @@ jobs:
     steps:
       - name: Say hello
         run: echo "Hello, World!"
+
   echo-goodbye:
     runs-on: ubuntu-latest
     steps:
       - name: Passed step
         run: | 
           echo "I will fail"
-          echo "I will fail"
+          echo "I will fail2"
       - name: Say goodbye:
         run: echo "Goodbye!"
