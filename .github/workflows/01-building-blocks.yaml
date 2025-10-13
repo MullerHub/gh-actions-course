@@ -2,7 +2,7 @@ name: 01 - Building Blocks
 
 on:
   push:
-  workflow_dipatch:
+  workflow_dispatch:
 
 jobs:
   echo-hello:
@@ -17,6 +17,6 @@ jobs:
         run: | 
           echo "I will fail"
           echo "I will fail"
-
+          exit 1
       - name: Say goodbye:
         run: echo "Goodbye!"
