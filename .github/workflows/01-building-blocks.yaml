@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Passed step
         run: |
-              echo "I will fail"
-              echo "I will fail2"
+          echo "I will fail"
+          echo "I will fail2"
       - name: Say goodbye:
         run: echo "Goodbye!"
