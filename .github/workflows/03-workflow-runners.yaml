@@ -1,0 +1,10 @@
+name: 03 - Workflow Runners
+on:
+	  push:
+jobs:
+  ubuntu-echo:
+	runs-on: ubuntu-latest
+	steps:
+		- name: Show OS
+		  run: "This job is running on an Ubuntu runner."
+		  run: uname -a
