@@ -9,5 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Show the trigger
-        run: > 
-          echo "O evento que disparou este workflow foi: ${{ github.event_name }}"
+        run: echo "O evento que disparou este workflow foi; ${{ github.event_name }}"
