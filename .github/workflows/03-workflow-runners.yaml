@@ -16,7 +16,7 @@ jobs:
         - name: Show OS
           run: |
             echo "This job is running on a Windows runner."
-            echo systeminfo | findstr /B /C:"OS Name" /C:
+            echo systeminfo | findstr /B /C:"OS Name"
   max-echo:
     runs-on: macos-latest
     steps:
