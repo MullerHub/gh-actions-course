@@ -2,8 +2,10 @@ name: 05 - 2 - Event Filters and Activity Types
 on:
   push:
   pull_request:
-    types: closed
-    branches: [main]
+    types:
+      - closed
+    branches:
+      - main
 jobs:
     echo:
       runs-on: ubuntu-latest
