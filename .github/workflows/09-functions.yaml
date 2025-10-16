@@ -10,7 +10,7 @@ jobs:
       # --- Passos de inspeção do Pull Request ---
       - name: Print PR title
         # Acessa o título do PR através do contexto 'github.event'
-        run: echo "PR Title: ${{ github.event.pull_request.title }}"
+        run: echo "PR Title ${{ github.event.pull_request.title }}"
       - name: Print PR labels
         # A função toJSON formata o array de labels em um JSON legível.
         # O 'cat << EOF' é uma técnica de shell para imprimir blocos de texto com múltiplas linhas.
