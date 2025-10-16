@@ -1,0 +1,50 @@
+name: 06 - Contexts
+
+# A tentativa com ${{ runner.os }} falharia aqui, pois o contexto 'runner' ainda não existe.
+run-name: 06 - Contexts | DEBUG - ${{ inputs.debug }}
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        description: 'Run in debug mode'
+        default: false
+env:
+  MY_WORKFLOW_VAR: 'workflow'
+  MY_OVERWRITTEN_VAR: 'workflow'
+jobs:
+  echo-data:
+    runs-on: ubuntu-latest
+    env:
+      MY_JOB_VAR: 'job'
+      MY_OVERWRITTEN_VAR: 'job'
+    steps:
+      - name: Display Information from github context
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run number: ${{ github.run_number }}"
+      - name: Retrieve Repository Variable from vars context
+        run: echo "The value of MY_VAR is ${{ vars.MY_VAR }}"
+      - name: Print Env Variables (Step 1)
+        env:
+          MY_OVERWRITTEN_VAR: 'step'
+        run: |
+          echo "Workflow env: $MY_WORKFLOW_VAR"
+          echo "Job env: $MY_JOB_VAR"
+          echo "Overwritten env: $MY_OVERWRITTEN_VAR" # <-- Vai imprimir 'step'
+
+      - name: Print Env Variables (Step 2)
+        # Este step NÃO tem um bloco 'env' próprio.
+        run: |
+          echo "--- In the next step ---"
+          echo "Workflow env: $MY_WORKFLOW_VAR"
+          echo "Job env: $MY_JOB_VAR"
+          # Como não há 'env' no nível do step, ele usa o valor do nível mais próximo: o JOB.
+          echo "Overwritten env: $MY_OVERWRITTEN_VAR" # <-- Vai imprimir 'job'
