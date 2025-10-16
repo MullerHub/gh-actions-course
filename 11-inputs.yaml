@@ -1,0 +1,44 @@
+name: 11 - Working with Inputs
+on:
+  workflow_dispatch:
+    # O bloco 'inputs' define o formulário que aparecerá na interface do GitHub
+    inputs:
+      # INPUT 1: Um checkbox (verdadeiro/falso)
+      dry-run:
+        type: boolean
+        description: 'Skip deployment and only print build output'
+        default: false
+      # INPUT 2: Um menu dropdown com os Ambientes do repositório
+      target:
+        type: environment
+        description: 'Which environment the workflow will target'
+        required: true
+      # INPUT 3: Um menu dropdown com opções pré-definidas
+      tag:
+        type: choice
+        description: 'Release from which to build and deploy'
+        default: 'v3'
+        options:
+          - v1
+          - v2
+          - v3
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        # Acessa o valor do input 'tag' para usá-lo no script
+        run: echo "Building from tag ${{ inputs.tag }}"
+  deploy:
+    runs-on: ubuntu-latest
+    # Este job depende do sucesso do job 'build'
+    needs: build
+    # CONDIÇÃO: Este job só roda se o input 'dry-run' NÃO for verdadeiro.
+    # Se o checkbox 'dry-run' for marcado, este job será pulado.
+    if: ${{ !inputs.dry-run }}
+    # AMBIENTE DINÂMICO: O ambiente do job é definido pelo input 'target'
+    environment: ${{ inputs.target }}
+    steps:
+      - name: Deploy
+        # Acessa o valor do input 'target' para o script
+        run: echo "Deploying to ${{ inputs.target }}"
