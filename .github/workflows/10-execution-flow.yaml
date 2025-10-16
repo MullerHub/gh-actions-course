@@ -1,0 +1,56 @@
+name: 10 - Controlling the Execution Flow
+on:
+  workflow_dispatch:
+    inputs:
+      pass-unit-tests:
+        type: boolean
+        description: 'Os testes unitários devem passar?'
+        default: false
+jobs:
+  # JOB 1: Roda no início, sem dependências.
+  lint-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lint and build
+        run: echo "Linting and building project"
+  # JOB 2: Roda no início, em paralelo com o lint-build.
+  unit-tests:
+    runs-on: ubuntu-latest
+    # continue-on-error: Se true, mesmo que este job falhe, ele será marcado como 'sucesso'
+    # para que os jobs dependentes possam continuar. Descomente na segunda parte do exercício.
+    # continue-on-error: true
+    steps:
+      - name: Running unit tests
+        run: echo "Running tests..."
+      - name: Failing tests
+        # A expressão !inputs.pass-unit-tests significa "se a entrada 'pass-unit-tests' NÃO for verdadeira".
+        if: ${{ !inputs.pass-unit-tests }}
+        run: exit 1
+  # JOB 3: Só começa DEPOIS que 'lint-build' E 'unit-tests' terminarem com sucesso.
+  deploy-nonprod:
+    runs-on: ubuntu-latest
+    needs: [lint-build, unit-tests]
+    steps:
+      - name: Deploying to nonprod
+        run: echo "Deploying to nonprod..."
+  # JOB 4: Só começa DEPOIS que 'deploy-nonprod' terminar com sucesso.
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-nonprod
+    steps:
+      - name: Running E2E tests
+        run: echo "Running E2E tests"
+  # JOB 5: Roda em paralelo com e2e-tests, também depende de 'deploy-nonprod'.
+  load-tests:
+    runs-on: ubuntu-latest
+    needs: deploy-nonprod
+    steps:
+      - name: Running load tests
+        run: echo "Running load tests"
+  # JOB 6: Só começa DEPOIS que 'e2e-tests' E 'load-tests' terminarem com sucesso.
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, load-tests]
+    steps:
+      - name: Deploying to prod
+        run: echo "Deploying to prod..."
