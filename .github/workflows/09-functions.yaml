@@ -29,7 +29,7 @@ jobs:
         run: sleep 20
       - name: Failing step
         # 'exit 1' é um comando de shell que sinaliza um erro
-        run: exit 1
+        run: exit 0
       - name: I will be skipped
         # success() é a condição padrão. Roda se tudo até agora deu certo.
         # Como o passo anterior falha, este será pulado.
