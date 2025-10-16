@@ -10,7 +10,7 @@ on:
 # env (Nível WORKFLOW)
 # Usado para demonstrar como prover um valor padrão para uma variável que pode não existir.
 env:
-  UNDEFINED_VAR_WITH_DEFAULT: ${{ vars.UNDEFINED_VAR || 'default value' }}
+  UNDEFINED_VAR_WITH_DEFAULT: ${{ vars.UNDEFINED_VAR || 'default value setado global nesse workflow' }}
 
 jobs:
   # JOB 1: Mostra os valores base da Organização e do Repositório
