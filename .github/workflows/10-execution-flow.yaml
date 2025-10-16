@@ -5,7 +5,7 @@ on:
       pass-unit-tests:
         type: boolean
         description: 'Os testes unitários devem passar?'
-        default: false
+        default: true
 jobs:
   # JOB 1: Roda no início, sem dependências.
   lint-build:
