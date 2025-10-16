@@ -1,0 +1,57 @@
+# .github/workflows/09-org-repo-env-vars.yaml
+
+name: 09 - Org, Repo, and Env Variables
+
+on:
+  # No final, você pode alterar para workflow_dispatch
+  push:
+  workflow_dispatch:
+
+# env (Nível WORKFLOW)
+# Usado para demonstrar como prover um valor padrão para uma variável que pode não existir.
+env:
+  UNDEFINED_VAR_WITH_DEFAULT: ${{ vars.UNDEFINED_VAR || 'default value' }}
+
+jobs:
+  # JOB 1: Mostra os valores base da Organização e do Repositório
+  echo-vars:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Org and Repo Variables
+        run: |
+          echo "--- Este job não tem um 'environment' definido ---"
+          # [Requires Organizations] Esta variável vem das configurações da sua Organização
+          echo "Org var: ${{ vars.ORG_VAR }}"
+          # [Requires Organizations] Sem um ambiente, o valor de OVERWRITTEN_VAR vem da Org
+          echo "Org overwritten var: ${{ vars.OVERWRITTEN_VAR }}"
+          # Esta variável vem das configurações do seu Repositório
+          echo "Repo var: ${{ vars.REPOSITORY_VAR }}"
+
+  # JOB 2: Mostra como o 'environment' sobrescreve as variáveis
+  echo-prod:
+    runs-on: ubuntu-latest
+    # Esta linha "ativa" o ambiente 'prod', dando acesso às suas variáveis
+    environment: prod
+    steps:
+      - name: Print Prod Variables
+        run: |
+          echo "--- Este job está usando o ambiente 'prod' ---"
+          # [Requires Organizations] Este valor ainda vem da Organização
+          echo "Org var: ${{ vars.ORG_VAR }}"
+          # ESTA É A MUDANÇA: O valor de OVERWRITTEN_VAR agora vem do ambiente 'prod'
+          echo "Org overwritten var (from prod env): ${{ vars.OVERWRITTEN_VAR }}"
+          # A variável do Repositório continua vindo de lá
+          echo "Repo var: ${{ vars.REPOSITORY_VAR }}"
+          # Esta variável só existe porque ativamos o ambiente 'prod'
+          echo "Environment var: ${{ vars.TARGET_VAR }}"
+
+  # JOB 3: Mostra o mecanismo de valor padrão em ação
+  echo-undefined:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Undefined Variables
+        run: |
+          echo "--- Este job testa o valor padrão ---"
+          # Este comando usa a variável de ambiente definida no topo do arquivo.
+          # Como vars.UNDEFINED_VAR não existe, o valor será 'default value'.
+          echo "Undefined var with default: $UNDEFINED_VAR_WITH_DEFAULT"

@@ -3,10 +3,8 @@
 name: 08 - Using Variables
 
 on:
-  # No final, você pode remover 'push:' para limpar o histórico
   push:
   workflow_dispatch:
-
 # env (Nível WORKFLOW): Disponível para TODOS os jobs e steps.
 # Pense nela como a configuração base para todo o workflow.
 env:
@@ -16,7 +14,6 @@ env:
 jobs:
   echo:
     runs-on: ubuntu-latest
-
     # env (Nível JOB): Disponível para todos os steps DENTRO DESTE JOB.
     # Esta definição de OVERWRITTEN tem prioridade sobre a do nível do workflow.
     env:
