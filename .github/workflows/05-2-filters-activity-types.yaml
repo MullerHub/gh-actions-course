@@ -1,6 +1,5 @@
 name: 05 - 2 - Event Filters and Activity Types
 on:
-  push:
   pull_request:
     types:
       - closed
