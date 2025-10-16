@@ -1,20 +1,14 @@
-# .github/workflows/07-expressions.yaml
-
 name: 07 - Using Expressions
-
 # run-name usa uma expressão ternária para mudar o título da execução.
 # Lógica: SE inputs.debug for verdadeiro, use 'ON', SENÃO, use 'OFF'.
 run-name: 07 - Using Expressions | DEBUG - ${{ inputs.debug && 'ON' || 'OFF' }}
-
 on:
   workflow_dispatch:
-    # Um input booleano para controlar a execução dos passos de debug
     inputs:
       debug:
         type: boolean
         description: 'Enable debug steps'
         default: false
-
 jobs:
   echo:
     runs-on: ubuntu-latest
@@ -28,13 +22,11 @@ jobs:
           echo "Branch: ${{ github.ref }}"
           echo "Commit SHA: ${{ github.sha }}"
           echo "Runner OS: ${{ runner.os }}"
-
       # Este passo tem uma condição composta com o operador E (&&).
       # AMBAS as condições precisam ser verdadeiras para o passo rodar.
       - name: '[debug] Print when triggered from main'
         if: inputs.debug && github.ref == 'refs/heads/main'
         run: echo "I was triggered from main"
-
       # Este passo não tem 'if', então ele SEMPRE roda.
       - name: Greeting
         run: echo "Hello, world"

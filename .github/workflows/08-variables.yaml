@@ -1,15 +1,9 @@
-# .github/workflows/08-variables.yaml
-
 name: 08 - Using Variables
-
 on:
   workflow_dispatch:
-# env (Nível WORKFLOW): Disponível para TODOS os jobs e steps.
-# Pense nela como a configuração base para todo o workflow.
 env:
   WORKFLOW_VAR: 'I am a workflow env var'
   OVERWRITTEN: 'I will be overwritten'
-
 jobs:
   echo:
     runs-on: ubuntu-latest
@@ -18,7 +12,6 @@ jobs:
     env:
       JOB_VAR: 'I am a job env var'
       OVERWRITTEN: 'I have been overwritten at the job level'
-
     steps:
       # Primeiro Step
       - name: Print Env Variables
@@ -34,8 +27,6 @@ jobs:
           echo "Workflow env var: $WORKFLOW_VAR"
           # O valor de OVERWRITTEN vem do nível do JOB, pois é o mais próximo na hierarquia.
           echo "Overwritten: $OVERWRITTEN"
-
-      # Segundo Step
       - name: Overwrite Job Variable
         # env (Nível STEP): Agora sim, estamos definindo uma variável no nível do step
         # que tem o mesmo nome de uma do nível do job/workflow.

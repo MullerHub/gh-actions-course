@@ -1,17 +1,8 @@
-# .github/workflows/09-org-repo-env-vars.yaml
-
-name: 09 - Org, Repo, and Env Variables
-
+name: 08.1 - Org, Repo, and Env Variables
 on:
-  # No final, você pode alterar para workflow_dispatch
-  push:
   workflow_dispatch:
-
-# env (Nível WORKFLOW)
-# Usado para demonstrar como prover um valor padrão para uma variável que pode não existir.
 env:
   UNDEFINED_VAR_WITH_DEFAULT: ${{ vars.UNDEFINED_VAR || 'default value setado global nesse workflow' }}
-
 jobs:
   # JOB 1: Mostra os valores base da Organização e do Repositório
   echo-vars:
@@ -26,7 +17,6 @@ jobs:
           echo "Org overwritten var: ${{ vars.OVERWRITTEN_VAR }}"
           # Esta variável vem das configurações do seu Repositório
           echo "Repo var: ${{ vars.REPOSITORY_VAR }}"
-
   # JOB 2: Mostra como o 'environment' sobrescreve as variáveis
   echo-prod:
     runs-on: ubuntu-latest
@@ -44,7 +34,6 @@ jobs:
           echo "Repo var: ${{ vars.REPOSITORY_VAR }}"
           # Esta variável só existe porque ativamos o ambiente 'prod'
           echo "Environment var: ${{ vars.TARGET_VAR }}"
-
   # JOB 3: Mostra o mecanismo de valor padrão em ação
   echo-undefined:
     runs-on: ubuntu-latest
