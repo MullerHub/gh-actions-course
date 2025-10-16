@@ -1,0 +1,49 @@
+name: 09 - Using Functions
+on:
+  pull_request:
+  # No final, você pode remover 'pull_request' para limpar o histórico
+  workflow_dispatch:
+jobs:
+  echo1:
+    runs-on: ubuntu-latest
+    steps:
+      # --- Passos de inspeção do Pull Request ---
+      - name: Print PR title
+        # Acessa o título do PR através do contexto 'github.event'
+        run: echo "PR Title: ${{ github.event.pull_request.title }}"
+      - name: Print PR labels
+        # A função toJSON formata o array de labels em um JSON legível.
+        # O 'cat << EOF' é uma técnica de shell para imprimir blocos de texto com múltiplas linhas.
+        run: |
+          echo "PR Labels:"
+          cat << EOF
+          ${{ toJSON(github.event.pull_request.labels) }}
+          EOF
+      - name: Bug step
+        # Condição composta: Roda SE (um passo anterior falhou) E (o workflow não foi cancelado) E (o título do PR contém 'fix')
+        if: failure() && !cancelled() && contains(github.event.pull_request.title, 'fix')
+        run: echo "I am a bug fix"
+      # --- Passos de demonstração de status ---
+      - name: Sleep for 20 seconds
+        run: sleep 20
+      - name: Failing step
+        # 'exit 1' é um comando de shell que sinaliza um erro
+        run: exit 1
+      - name: I will be skipped
+        # success() é a condição padrão. Roda se tudo até agora deu certo.
+        # Como o passo anterior falha, este será pulado.
+        if: success()
+        run: echo "I will print if previous steps succeed."
+      - name: I will execute on failure
+        # failure() é o oposto de success(). Roda APENAS SE algo falhou antes.
+        if: failure()
+        run: echo "I will print if any previous step fails."
+      - name: I will execute (almost) always
+        # always() roda independentemente do sucesso ou falha dos passos anteriores.
+        # É ideal para tarefas de limpeza. Ele só não roda se o workflow for cancelado.
+        if: always()
+        run: echo "I will always print, except when the workflow is cancelled."
+      - name: I will execute when cancelled
+        # cancelled() só retorna verdadeiro se o workflow foi cancelado manualmente.
+        if: cancelled()
+        run: echo "This step runs ONLY when the workflow is cancelled."
