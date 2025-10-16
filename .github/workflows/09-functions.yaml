@@ -1,6 +1,5 @@
 name: 09 - Using Functions
 on:
-  push:
   pull_request:
   # No final, você pode remover 'pull_request' para limpar o histórico
   workflow_dispatch:

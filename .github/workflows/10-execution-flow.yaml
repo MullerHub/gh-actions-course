@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     # continue-on-error: Se true, mesmo que este job falhe, ele será marcado como 'sucesso'
     # para que os jobs dependentes possam continuar. Descomente na segunda parte do exercício.
-    # continue-on-error: true
+    continue-on-error: true
     steps:
       - name: Running unit tests
         run: echo "Running tests..."

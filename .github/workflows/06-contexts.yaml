@@ -1,8 +1,6 @@
 name: 06 - Contexts
-
 # A tentativa com ${{ runner.os }} falharia aqui, pois o contexto 'runner' ainda não existe.
 run-name: 06 - Contexts | DEBUG - ${{ inputs.debug }}
-
 on:
   workflow_dispatch:
     inputs:
