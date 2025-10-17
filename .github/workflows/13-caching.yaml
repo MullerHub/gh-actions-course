@@ -1,0 +1,61 @@
+name: 13 - Using Caching
+on:
+  workflow_dispatch:
+    inputs:
+      use-cache:
+        type: boolean
+        description: 'Whether to execute cache step'
+        default: true
+      node-version:
+        type: choice
+        description: 'Node version'
+        default: '20.x'
+        options:
+          - '18.x'
+          - '20.x'
+          - '21.x'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Esta seção 'defaults' é um atalho. Ela define que todos os comandos 'run'
+    # neste job serão executados dentro do diretório especificado.
+    defaults:
+      run:
+        working-directory: 13-caching/react-app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # Usa o input para definir a versão do Node dinamicamente
+          node-version: ${{ inputs.node-version }}
+
+      # ESTE É O PASSO DE CACHE
+      - name: Download cached dependencies
+        # Roda apenas se o input 'use-cache' for verdadeiro
+        if: inputs.use-cache
+        # O 'id' é crucial para que possamos referenciar os outputs deste passo depois
+        id: cache
+        # A ação oficial do GitHub para gerenciar cache
+        uses: actions/cache@v4
+        with:
+          # O caminho da pasta que queremos salvar/restaurar.
+          # Nota: 'defaults' não se aplica a 'uses', então precisamos do caminho completo.
+          path: 13-caching/react-app/node_modules
+          # A "etiqueta" única para o nosso cache. A mágica está aqui.
+          key: deps-node-modules-${{ hashFiles('13-caching/react-app/package-lock.json') }}
+
+      - name: Install dependencies
+        # CONDIÇÃO: Só executa 'npm ci' SE o passo do cache NÃO encontrou um cache.
+        # 'cache-hit' é um output do passo com id 'cache'.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Testing
+        run: npm run test
+      - name: Building
+        run: npm run build
+      - name: Deploying to nonprod
+        run: echo "Deploying to nonprod"
