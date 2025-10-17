@@ -1,0 +1,41 @@
+name: 12 - Working with Outputs
+on:
+  workflow_dispatch:
+    inputs:
+      # Este input vai simular o resultado de um processo de build
+      build-status:
+        type: choice
+        description: 'Simulated status of the build'
+        default: 'success'
+        options:
+          - success
+          - failure
+jobs:
+  # JOB 1: Este job vai "produzir" um resultado (output)
+  build:
+    runs-on: ubuntu-latest
+    # O bloco 'outputs' declara quais "recados" este job vai exportar para outros jobs.
+    # Estamos criando um output de job chamado 'build-status'.
+    # O valor dele vem do output 'status' do step que tem o id 'build'.
+    outputs:
+      build-status: ${{ steps.build.outputs.status }}
+    steps:
+      - name: Print GITHUB_OUTPUT path
+        run: |
+          echo "Path to output file is: $GITHUB_OUTPUT"
+      - name: Build
+        # O 'id' é crucial. Ele dá um nome único a este step para que possamos referenciá-lo.
+        id: build
+        # Este comando escreve uma chave-valor no arquivo especial GITHUB_OUTPUT.
+        # É assim que um step define um output.
+        run: echo "status=${{ inputs.build-status }}" >> $GITHUB_OUTPUT
+  # JOB 2: Este job vai "consumir" o resultado do job anterior
+  deploy:
+    runs-on: ubuntu-latest
+    # Este job precisa (needs) que o job 'build' termine.
+    needs: build
+    # CONDIÇÃO: Este job só roda se o output 'build-status' do job 'build' for igual a 'success'.
+    if: needs.build.outputs.build-status == 'success'
+    steps:
+      - name: Deploy
+        run: echo "Deploying..."
