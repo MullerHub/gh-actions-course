@@ -26,7 +26,7 @@ jobs:
           cat $GITHUB_OUTPUT
           echo "mistake=true" >> $GITHUB_OUTPUT
           echo "--- Conteúdo DEPOIS do erro (Erro tirado nesse novo commit) ---"
-          cat $GITHUB_OUTPUT
+          cat "$GITHUB_OUTPUT"
           echo "output2=value2" >> $GITHUB_OUTPUT
   deploy:
     runs-on: ubuntu-latest
