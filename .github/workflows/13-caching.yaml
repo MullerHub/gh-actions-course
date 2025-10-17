@@ -30,7 +30,7 @@ jobs:
       # Este passo apenas CALCULA a chave e a define como um output do passo.
       - name: Calculate cache key
         id: cache-key
-        run: echo "CACHE_KEY=deps-node-modules-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
+        run: echo "CACHE_KEY=deps-node-modules-v2-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
 
       - name: Download cached dependencies
         id: cache
