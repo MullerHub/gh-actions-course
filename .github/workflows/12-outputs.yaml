@@ -1,7 +1,4 @@
-# .github/workflows/12-outputs.yaml
-
 name: 12 - Working with Outputs (Mistake Demo)
-
 on:
   workflow_dispatch:
     inputs:
@@ -12,7 +9,6 @@ on:
         options:
           - success
           - failure
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,7 +36,6 @@ jobs:
           
           # 3. Tentamos adicionar um último output. Ele será adicionado ao arquivo já sobrescrito.
           echo "output2=value2" >> $GITHUB_OUTPUT
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
