@@ -24,7 +24,7 @@ jobs:
           echo "output1=value1" >> $GITHUB_OUTPUT
           echo "--- Conteúdo ANTES do erro ---"
           cat $GITHUB_OUTPUT
-          echo "mistake=true" > $GITHUB_OUTPUT
+          echo "mistake=true" >> $GITHUB_OUTPUT
           echo "--- Conteúdo DEPOIS do erro (Erro tirado nesse novo commit) ---"
           cat $GITHUB_OUTPUT
           echo "output2=value2" >> $GITHUB_OUTPUT
