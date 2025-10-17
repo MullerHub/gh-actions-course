@@ -43,5 +43,6 @@ jobs:
       - name: Print Outputs
         run: |
           echo "Deploying..."
+
           # Vamos tentar imprimir o output1 que deveria ter vindo do job 'build'
           echo "Output 1 from build job is: ---${{ needs.build.outputs.output1 }}---"
