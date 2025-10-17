@@ -23,17 +23,16 @@ jobs:
           # 1. Adicionamos os dois primeiros outputs corretamente com '>>' (append)
           echo "status=${{ inputs.build-status }}" >> $GITHUB_OUTPUT
           echo "output1=value1" >> $GITHUB_OUTPUT
-          
           echo "--- Conteúdo ANTES do erro ---"
           cat $GITHUB_OUTPUT
-          
+
           # 2. O ERRO INTENCIONAL: usamos '>' (overwrite) em vez de '>>'
           # Isso vai APAGAR tudo que estava no arquivo e escrever apenas esta linha.
+
           echo "mistake=true" > $GITHUB_OUTPUT
-          
           echo "--- Conteúdo DEPOIS do erro ---"
           cat $GITHUB_OUTPUT
-          
+
           # 3. Tentamos adicionar um último output. Ele será adicionado ao arquivo já sobrescrito.
           echo "output2=value2" >> $GITHUB_OUTPUT
   deploy:
