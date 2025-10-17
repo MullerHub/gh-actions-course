@@ -1,11 +1,7 @@
-name: 13 - Using Caching
+name: 13 - Using Caching (Multi-Job)
 on:
   workflow_dispatch:
     inputs:
-      use-cache:
-        type: boolean
-        description: 'Whether to execute cache step'
-        default: true
       node-version:
         type: choice
         description: 'Node version'
@@ -15,10 +11,45 @@ on:
           - '20.x'
           - '21.x'
 jobs:
-  build:
+  # JOB 1: O "INSTALADOR" - Sua única responsabilidade é preparar o cache.
+  install-deps:
     runs-on: ubuntu-latest
-    # Esta seção 'defaults' é um atalho. Ela define que todos os comandos 'run'
-    # neste job serão executados dentro do diretório especificado.
+    defaults:
+      run:
+        working-directory: 13-caching/react-app
+    # Este job vai "exportar" a chave de cache para os outros jobs usarem.
+    outputs:
+      deps-cache-key: ${{ steps.cache-key.outputs.CACHE_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+      # Este passo apenas CALCULA a chave e a define como um output do passo.
+      - name: Calculate cache key
+        id: cache-key
+        run: echo "CACHE_KEY=deps-node-modules-${{ hashFiles('package-lock.json') }}" >> $GITHUB_OUTPUT
+
+      - name: Download cached dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          # Usa a chave que foi calculada no passo anterior.
+          key: ${{ steps.cache-key.outputs.CACHE_KEY }}
+
+      - name: Install dependencies
+        # Só roda se o cache não foi encontrado.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  # JOB 2: O "LINTER" - Roda em paralelo com o build, mas só depois da instalação.
+  linting:
+    runs-on: ubuntu-latest
+    # Precisa que o job 'install-deps' termine com sucesso.
+    needs: install-deps
     defaults:
       run:
         working-directory: 13-caching/react-app
@@ -29,29 +60,44 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          # Usa o input para definir a versão do Node dinamicamente
           node-version: ${{ inputs.node-version }}
 
-      # ESTE É O PASSO DE CACHE
       - name: Download cached dependencies
-        # Roda apenas se o input 'use-cache' for verdadeiro
-        if: inputs.use-cache
-        # O 'id' é crucial para que possamos referenciar os outputs deste passo depois
-        id: cache
-        # A ação oficial do GitHub para gerenciar cache
         uses: actions/cache@v4
         with:
-          # O caminho da pasta que queremos salvar/restaurar.
-          # Nota: 'defaults' não se aplica a 'uses', então precisamos do caminho completo.
-          path: 13-caching/react-app/node_modules
-          # A "etiqueta" única para o nosso cache. A mágica está aqui.
-          key: deps-node-modules-${{ hashFiles('13-caching/react-app/package-lock.json') }}
+          path: ./node_modules
+          # Usa a chave de cache que foi "exportada" pelo job 'install-deps'.
+          key: ${{ needs.install-deps.outputs.deps-cache-key }}
 
-      - name: Install dependencies
-        # CONDIÇÃO: Só executa 'npm ci' SE o passo do cache NÃO encontrou um cache.
-        # 'cache-hit' é um output do passo com id 'cache'.
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: Testing
+        run: npm run test
+
+      - name: Linting
+        run: echo "Linting..."
+
+  # JOB 3: O "BUILDER" - Também roda em paralelo, só depois da instalação.
+  build:
+    runs-on: ubuntu-latest
+    # Precisa que o job 'install-deps' termine com sucesso.
+    needs: install-deps
+    defaults:
+      run:
+        working-directory: 13-caching/react-app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Download cached dependencies
+        uses: actions/cache@v4
+        with:
+          path: ./node_modules
+          # Também usa a chave de cache exportada pelo 'install-deps'.
+          key: ${{ needs.install-deps.outputs.deps-cache-key }}
 
       - name: Testing
         run: npm run test
