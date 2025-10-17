@@ -1,40 +1,53 @@
-name: 12 - Working with Outputs
+# .github/workflows/12-outputs.yaml
+
+name: 12 - Working with Outputs (Mistake Demo)
+
 on:
-    workflow_dispatch:
-        inputs:
-            # Este input vai simular o resultado de um processo de build
-            build-status:
-                type: choice
-                description: 'Status simulado do build'
-                default: 'success'
-                options:
-                    - success
-                    - failure
+  workflow_dispatch:
+    inputs:
+      build-status:
+        type: choice
+        description: 'Simulated status of the build'
+        default: 'success'
+        options:
+          - success
+          - failure
+
 jobs:
-    # JOB 1: Este job vai "produzir" um resultado (output)
-    build:
-        runs-on: ubuntu-latest
-        # O bloco 'outputs' declara quais "recados" este job vai exportar para outros jobs.
-        # Estamos criando um output de job chamado 'build-status'.
-        # O valor dele vem do output 'status' do step que tem o id 'build'.
-        outputs:
-            build-status: ${{ steps.build.outputs.status }}
-        steps:
-            - name: Print GITHUB_OUTPUT path
-              run: |
-                    echo "Caminho para o arquivo de saída: $GITHUB_OUTPUT"
-            - name: Build
-              id: build
-                # Este comando escreve uma chave-valor no arquivo especial GITHUB_OUTPUT.
-                # É assim que um step define um output.
-              run: echo "status=${{ inputs.build-status }}" >> $GITHUB_OUTPUT
-    # JOB 2: Este job vai "consumir" o resultado do job anterior
-    deploy:
-        runs-on: ubuntu-latest
-        # Este job precisa (needs) que o job 'build' termine.
-        needs: build
-        # CONDIÇÃO: Este job só roda se o output 'build-status' do job 'build' for igual a 'success'.
-        if: needs.build.outputs.build-status == 'success'
-        steps:
-            - name: Deploy
-              run: echo "Fazendo deploy..."
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      # Exportando 'build-status' e 'output1' do job
+      build-status: ${{ steps.build.outputs.status }}
+      output1: ${{ steps.build.outputs.output1 }}
+    steps:
+      - name: Build
+        id: build
+        run: |
+          # 1. Adicionamos os dois primeiros outputs corretamente com '>>' (append)
+          echo "status=${{ inputs.build-status }}" >> $GITHUB_OUTPUT
+          echo "output1=value1" >> $GITHUB_OUTPUT
+          
+          echo "--- Conteúdo ANTES do erro ---"
+          cat $GITHUB_OUTPUT
+          
+          # 2. O ERRO INTENCIONAL: usamos '>' (overwrite) em vez de '>>'
+          # Isso vai APAGAR tudo que estava no arquivo e escrever apenas esta linha.
+          echo "mistake=true" > $GITHUB_OUTPUT
+          
+          echo "--- Conteúdo DEPOIS do erro ---"
+          cat $GITHUB_OUTPUT
+          
+          # 3. Tentamos adicionar um último output. Ele será adicionado ao arquivo já sobrescrito.
+          echo "output2=value2" >> $GITHUB_OUTPUT
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.build-status == 'success'
+    steps:
+      - name: Print Outputs
+        run: |
+          echo "Deploying..."
+          # Vamos tentar imprimir o output1 que deveria ter vindo do job 'build'
+          echo "Output 1 from build job is: ---${{ needs.build.outputs.output1 }}---"
