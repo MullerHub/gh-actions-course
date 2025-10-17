@@ -1,9 +1,6 @@
 name: 14 - Working with Artifacts
 on:
-  workflow_dispatch:
-
-# env: Definir nomes de artefatos aqui torna o workflow mais limpo e fácil de manter.
-# Usar github.sha garante que cada artefato tenha um nome único por commit.
+  workflow_dispatch: {}
 env:
   build-artifact-key: app-${{ github.sha }}
   test-coverage-key: test-coverage-${{ github.sha }}
