@@ -26,6 +26,7 @@ jobs:
         run: |
           echo "This is the experimental build, and it will fail on purpose."
           exit 1
+          # Se retirarmos esse exit 1, o job passará normalmente.
       - name: Perform some tests
         run: |
           echo "Running tests on OS ${{ matrix.os }} and NodeJS ${{ matrix.node-version }}"
