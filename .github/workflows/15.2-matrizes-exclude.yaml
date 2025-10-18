@@ -1,0 +1,51 @@
+name: 15.2 - Exploring Matrix Exclude
+on:
+  workflow_dispatch: {}
+
+jobs:
+  include-exclude-example:
+    runs-on: ubuntu-latest
+    strategy:
+      # ENSINAMENTO CENTRAL: A ORDEM DE OPERAÇÃO
+      # O GitHub Actions processa a matriz na seguinte ordem:
+      # 1. Gera o produto cartesiano (todas as combinações de color, shape, size).
+      # 2. Aplica o 'exclude' para REMOVER combinações dessa lista inicial.
+      # 3. Aplica o 'include' para ADICIONAR ou MODIFICAR combinações na lista que sobrou.
+      matrix:
+        color: [red, green]
+        shape: [circle, square]
+        size: [small, large]
+
+        # ENSINAMENTO 1: USANDO 'exclude' CORRETAMENTE
+        # 'exclude' remove da matriz todas as combinações que correspondem a estes critérios.
+        # Esta regra removerá TODAS as combinações que são 'green' E 'circle',
+        # independentemente do valor de 'size'.
+        exclude:
+          - color: green
+            shape: circle
+
+        include:
+          # (Regras do exercício anterior)
+          - color: red
+            opacity: 75
+          - shape: circle
+            opacity: 100
+          - color: red
+            shape: triangle
+          - opacity: 50
+          # ENSINAMENTO 2: 'include' RODA DEPOIS DE 'exclude'
+          # Esta nova regra foi adicionada. Como o 'exclude' já removeu
+          # os jobs 'green-circle-small' e 'green-circle-large', este 'include'
+          # age como uma "re-inclusão" ou uma exceção à regra de exclusão.
+          # Ele adiciona de volta um job 'green-circle', mas um específico com 'size: medium'.
+          - color: green
+            shape: circle
+            size: medium
+
+    # O nome do job é dinâmico e tratado para não ter hifens duplos.
+    # Usa '&& format()' para adicionar '-[valor]' apenas se a variável existir.
+    name: ${{ matrix.color }}-${{ matrix.shape }}${{ matrix.size && format('-{0}', matrix.size) }}${{ matrix.opacity && format('-{0}', matrix.opacity) }}
+
+    steps:
+      - name: Dummy step
+        run: echo "color=${{ matrix.color }}, shape=${{ matrix.shape }}, size=${{ matrix.size }}, opacity=${{ matrix.opacity }}"
