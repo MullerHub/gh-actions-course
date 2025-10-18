@@ -1,0 +1,42 @@
+name: 15.1 - Deep Dive on Matrix Include
+on:
+  workflow_dispatch: {}
+jobs:
+  include-example:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Base da matriz: 3 eixos que geram 2x2x2 = 8 combinações iniciais.
+        color: [red, green]
+        shape: [circle, square]
+        size: [small, large]
+        include:
+          - color: red
+            opacity: 75
+          # REGRA 2: Modifica todos os jobs onde 'shape' é 'circle'.
+          # Adiciona (ou sobrescreve) 'opacity' para 100.
+          # Se um job for 'red' e 'circle', esta regra roda DEPOIS da anterior
+          # e o valor final de 'opacity' será 100.
+          - shape: circle
+            opacity: 100
+          # REGRA 3: Adiciona uma nova combinação à matriz.
+          # Como 'size' não foi definido, ele cria jobs para TODOS os valores de 'size'.
+          # Ou seja, cria 'red-triangle-small' e 'red-triangle-large'.
+          - color: red
+            shape: triangle
+
+          # REGRA 4 (Originalmente a primeira, agora a última):
+          # Esta regra é a mais importante para o aprendizado final.
+          # Como ela não tem NENHUMA condição ('color', 'shape', 'size'), ela
+          # combina com TODOS os jobs da matriz.
+          # Por ser a ÚLTIMA da lista, ela vai SOBRESCREVER o valor de 'opacity'
+          # que foi definido pelas regras mais específicas acima.
+          - opacity: 50
+
+    # O nome do job é dinâmico, refletindo os valores finais da matriz.
+    # Usamos '||' '' para evitar um '-' extra se a variável não existir.
+    name: ${{ matrix.color }}-${{ matrix.shape }}-${{ matrix.size }}-${{ matrix.opacity || '' }}
+    steps:
+      - name: Dummy step
+        # Imprime os valores finais para vermos o resultado das regras do 'include'.
+        run: echo "color=${{ matrix.color }}, shape=${{ matrix.shape }}, size=${{ matrix.size }}, opacity=${{ matrix.opacity }}"
