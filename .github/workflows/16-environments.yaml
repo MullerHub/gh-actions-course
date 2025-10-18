@@ -1,0 +1,45 @@
+name: 16 - Working with Environments
+on:
+  # Permite que o workflow seja disparado manualmente.
+  workflow_dispatch: {}
+jobs:
+  # PRIMEIRO JOB: Faz o deploy no ambiente de homologação (staging).
+  deploy-staging:
+    runs-on: ubuntu-latest
+    # Define o ambiente para este job. 'staging' não tem regras de proteção.
+    environment: staging
+    steps:
+      - name: Deploying to staging
+        run: echo "Deploying to staging"
+
+  # SEGUNDO JOB: Roda testes End-to-End APÓS o deploy em staging.
+  e2e-tests:
+    runs-on: ubuntu-latest
+    # 'needs' garante que este job só rode se 'deploy-staging' for bem-sucedido.
+    needs: deploy-staging
+    steps:
+      - name: E2E tests
+        run: echo "Running E2E"
+
+  # TERCEIRO JOB: Faz o deploy em produção, o estágio mais crítico.
+  deploy-prod:
+    runs-on: ubuntu-latest
+    # 'needs' garante que este job só rode se os testes E2E passarem.
+    needs: e2e-tests
+
+    # ENSINAMENTO CENTRAL: A linha abaixo ativa todas as regras de proteção.
+    # Ao declarar 'environment: prod', o GitHub pausa o job e verifica
+    # se há revisores obrigatórios e tempo de espera.
+    environment: prod
+
+    # 'env' define variáveis de ambiente para os passos deste job.
+    env:
+      # Acessa a variável 'MY_ENV_VALUE' específica do ambiente 'prod'.
+      # O contexto 'vars' é usado para ler variáveis de ambiente do GitHub.
+      # Se a variável não existir, usa 'default value' como fallback.
+      my-env-value: ${{ vars.MY_ENV_VALUE || 'default value' }}
+
+    steps:
+      - name: Deploying to prod
+        # Acessa a variável de ambiente definida acima.
+        run: echo "Deploying to prod with value ${{ env.my-env-value }}"
