@@ -3,79 +3,32 @@ on:
   workflow_dispatch: {}
 jobs:
   backwards-compatibility:
-    # ENSINAMENTO 1: A ESTRATÉGIA DE MATRIZ
-    # A seção 'strategy' é onde a mágica acontece. Ela diz ao GitHub para criar
-    # várias cópias deste job, uma para cada combinação das variáveis que definimos abaixo.
     strategy:
-      # ENSINAMENTO 2: CONTROLE DE FALHAS COM 'fail-fast'
-      # 'fail-fast: false' é uma instrução importante. Se um dos jobs da matriz falhar
-      # (como o nosso job "experimental"), o GitHub NÃO cancelará os outros.
-      # Ele deixará todos os jobs terminarem, para que você possa ver todos os
-      # resultados, tanto os de sucesso quanto os de falha.
-      # Se fosse 'true' (o padrão), o primeiro job a falhar cancelaria todos os outros.
       fail-fast: false
-
-      # 'matrix' define os eixos da nossa "tabela" de combinações.
       matrix:
-        # Primeiro eixo: versões do Node.js
         node-version: [18.x, 20.x, 21.x]
-        # Segundo eixo: sistemas operacionais
         os: [ubuntu-latest, windows-latest]
-
-        # ENSINAMENTO 3: EXPANDINDO A MATRIZ COM 'include'
-        # 'include' permite adicionar combinações específicas que não fazem parte
-        # do produto cartesiano (todas as combinações possíveis) ou adicionar
-        # novas variáveis a combinações existentes.
         include:
-          # Adiciona uma combinação totalmente nova: Node 16.x apenas no Ubuntu.
           - node-version: 16.x
             os: ubuntu-latest
-
-          # Estende uma combinação existente (Node 21.x + Ubuntu).
-          # Adicionamos uma nova chave 'tag' com o valor 'experimental'.
-          # Esta chave 'tag' agora existe APENAS para esta combinação específica.
           - node-version: 21.x
             os: ubuntu-latest
             tag: experimental
-
-    # O job rodará na máquina virtual definida pela variável 'os' da matriz.
-    # Ex: 'ubuntu-latest', 'windows-latest'.
     runs-on: ${{ matrix.os }}
-
-    # Define um nome dinâmico para cada job, usando as variáveis da matriz.
-    # Isso torna a visualização no GitHub muito mais clara.
-    # Ex: "ubuntu-latest-20.x"
     name: ${{ matrix.os }}-${{ matrix.node-version }}
-
     steps:
-      # Primeiro passo: Configurar a versão do Node.js.
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          # A versão do Node é lida dinamicamente da variável 'node-version' da matriz.
           node-version: ${{ matrix.node-version }}
-
-      # ENSINAMENTO 4: LÓGICA CONDICIONAL COM A MATRIZ
-      # Este passo só será executado se a condição 'if' for verdadeira.
       - name: Fail if experimental
-        # A condição verifica se a chave 'tag' da matriz atual é igual a 'experimental'.
-        # Isso garante que este passo de falha só rode no job de Node 21.x + Ubuntu.
         if: matrix.tag == 'experimental'
         run: |
           echo "This is the experimental build, and it will fail on purpose."
-          # 'exit 1' é um comando que termina o script com um código de erro,
-          # fazendo com que o GitHub marque este job específico como "falho".
           exit 1
-
-      # Terceiro passo: Simula a execução de testes.
       - name: Perform some tests
         run: |
-          # Acessamos as variáveis da matriz para criar uma mensagem dinâmica.
           echo "Running tests on OS ${{ matrix.os }} and NodeJS ${{ matrix.node-version }}"
-          # 'sleep 10' simula um processo que leva tempo, tornando mais fácil
-          # observar o comportamento do 'fail-fast' na interface do GitHub.
           sleep 10
-
-      # Quarto passo: Simula o upload de resultados.
       - name: Upload test results
-        run: echo "Uploading test results"1
+        run: echo "Uploading test results"
