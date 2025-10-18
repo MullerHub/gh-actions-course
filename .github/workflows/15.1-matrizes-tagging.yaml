@@ -34,8 +34,8 @@ jobs:
           - opacity: 50
 
     # O nome do job é dinâmico, refletindo os valores finais da matriz.
-    # Usamos '||' '' para evitar um '-' extra se a variável não existir.
-    name: ${{ matrix.color }}-${{ matrix.shape }}-${{ matrix.size }}-${{ matrix.opacity || '' }}
+    # Usa '&& format()' para adicionar '-[valor]' apenas se a variável existir, evitando hifens extras ('--') no nome.
+    name: ${{ matrix.color }}-${{ matrix.shape }}${{ matrix.size && format('-{0}', matrix.size) }}${{ matrix.opacity && format('-{0}', matrix.opacity) }}
     steps:
       - name: Dummy step
         # Imprime os valores finais para vermos o resultado das regras do 'include'.
