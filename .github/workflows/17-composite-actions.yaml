@@ -1,0 +1,26 @@
+name: 17 - Usando Ações Compostas
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Fazer checkout do código do repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Instalar Dependências e Fazer Cache (Ação Composta)
+        uses: ./.github/actions/composite-cache-deps
+        with:
+          node-version: '20.x'
+          working-dir: '14-artifacts/react-app'
+
+      - name: 3. Executar o build da aplicação
+        run: npm run build
+        working-directory: '14-artifacts/react-app'
+
+      - name: 4. Executar os testes da aplicação
+        run: npm test
+        working-directory: '14-artifacts/react-app'
