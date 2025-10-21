@@ -1,25 +1,25 @@
-name: 'Cache Node and NPM Dependencies'
-description: 'This action allows to cache both Node and NPM dependencies based on the package-lock.json file.'
+name: 'Cache de Dependências Node e NPM'
+description: 'Esta ação permite fazer cache das dependências do Node e NPM com base no arquivo package-lock.json.'
 
 inputs:
   node-version:
-    description: 'NodeJS version to use'
+    description: 'Versão do NodeJS a ser utilizada'
     required: true
     default: '20.x'
   working-dir:
-    description: 'The working directory of the application'
+    description: 'O diretório de trabalho da aplicação'
     required: false
     default: '.'
 
 runs:
   using: "composite"
   steps:
-    - name: Setup NodeJS version ${{ inputs.node-version }}
+    - name: Configurando a versão ${{ inputs.node-version }} do NodeJS
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Cache dependencies
+    - name: Fazer cache das dependências
       id: cache
       uses: actions/cache@v4
       with:
@@ -28,7 +28,7 @@ runs:
         restore-keys: |
           ${{ runner.os }}-npm-
 
-    - name: Install dependencies
+    - name: Instalar dependências
       if: steps.cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: ${{ inputs.working-dir }}
