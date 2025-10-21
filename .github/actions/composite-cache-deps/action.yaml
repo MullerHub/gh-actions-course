@@ -10,6 +10,10 @@ inputs:
     description: 'O diretório de trabalho da aplicação'
     required: false
     default: '.'
+  target-env:
+    description: '"dev" ou "prod". Controla se as dependências de desenvolvimento são instaladas.'
+    required: false
+    default: 'dev'
 
 runs:
   using: "composite"
@@ -24,12 +28,18 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ inputs.working-dir }}/node_modules
-        key: ${{ runner.os }}-npm-${{ hashFiles(format('{0}/{1}', inputs.working-dir, 'package-lock.json')) }}
+        key: ${{ runner.os }}-npm-${{ inputs.target-env }}-${{ hashFiles(format('{0}/{1}', inputs.working-dir, 'package-lock.json')) }}
         restore-keys: |
-          ${{ runner.os }}-npm-
+          ${{ runner.os }}-npm-${{ inputs.target-env }}-
 
-    - name: Instalar dependências
-      if: steps.cache.outputs.cache-hit != 'true'
+    - name: Instalar dependências de desenvolvimento
+      if: steps.cache.outputs.cache-hit != 'true' && inputs.target-env == 'dev'
       shell: bash
       working-directory: ${{ inputs.working-dir }}
       run: npm ci
+
+    - name: Instalar dependências de produção
+      if: steps.cache.outputs.cache-hit != 'true' && inputs.target-env == 'prod'
+      shell: bash
+      working-directory: ${{ inputs.working-dir }}
+      run: npm ci --omit=dev
