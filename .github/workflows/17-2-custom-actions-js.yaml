@@ -12,5 +12,6 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
+        
       - name: Checar por atualizações de dependência
         uses: ./.github/actions/js-dependency-update
