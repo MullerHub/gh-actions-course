@@ -13,10 +13,18 @@ async function run() {
         core.info('2. Teste com argumentos - ls:');
         await exec.exec('ls', ['-la']);
 
-        // 3. Executando comando com opções
-        core.info('3. Teste com diretório específico:');
+        // 3. Executando comando com opções (usando GITHUB_WORKSPACE)
+        core.info('3. Teste com diretório específico (dinâmico):');
+        const githubWorkspace = process.env.GITHUB_WORKSPACE || process.cwd();
+        core.info(`GITHUB_WORKSPACE resolved to: ${githubWorkspace}`);
+
+        // Exemplo: usando subdiretório dentro do workspace
+        const exampleSubdir = '04-using-actions';
+        const path = require('path');
+        const resolvedDir = path.join(githubWorkspace, exampleSubdir);
+        core.info(`Resolved directory: ${resolvedDir}`);
         await exec.exec('ls', ['-la'], {
-            cwd: '/Users/murilomuller/Documents/programacao/gh-actions-course'
+            cwd: resolvedDir
         });
 
         // 4. Capturando saída do comando
